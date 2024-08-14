@@ -1,44 +1,9 @@
 from typing import List
-
+from app.comments import Comment
+from app.messages import Message
 import requests, pickle, time, random
 from bs4 import BeautifulSoup
 
-class Comment():
-    def __init__(self, href: str, name: str, text: str, bot):
-        self.__href = href
-        self.name = name
-        self.text = text
-        self.__bot = bot
-
-    def __str__(self):
-        return  self.name + self.text[:50]
-
-    def data(self):
-        return {
-            'name': self.name,
-            'text': self.text
-        }
-    def answer(self, text: str):
-        self.__bot.send_coment(self.__href, text)
-class Message():
-    def __init__(self, href, text, sender_name, time, bot):
-        self.__href = href
-        self.sender_name = sender_name
-        self.text = text
-        self.time = time
-        self.__bot = bot
-
-    def answer(self, text: str):
-        self.__bot.send_message(self.__href, text)
-
-    def __str__(self):
-        return f'{self.sender_name}:{self.text[:50]}...'
-    def data(self):
-        return {
-            'sender_name': self.sender_name,
-            'text': self.text,
-            'time': self.time,
-        }
 class Bot:
     """Use this class for administration account"""
     __PAUSE_MIN = 3
