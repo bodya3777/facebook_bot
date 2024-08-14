@@ -3,6 +3,23 @@ from typing import List
 import requests, pickle, time, random
 from bs4 import BeautifulSoup
 
+class Comment():
+    def __init__(self, href: str, name: str, text: str, bot):
+        self.__href = href
+        self.name = name
+        self.text = text
+        self.__bot = bot
+
+    def __str__(self):
+        return  self.name + self.text[:50]
+
+    def data(self):
+        return {
+            'name': self.name,
+            'text': self.text
+        }
+    def answer(self, text: str):
+        self.__bot.send_coment(self.__href, text)
 class Message():
     def __init__(self, href, text, sender_name, time, bot):
         self.__href = href
@@ -11,7 +28,7 @@ class Message():
         self.time = time
         self.__bot = bot
 
-    def answer(self, text):
+    def answer(self, text: str):
         self.__bot.send_message(self.__href, text)
 
     def __str__(self):
@@ -122,6 +139,48 @@ class Bot:
         data = self.__get_data_from_form(form)
         data['body'] = text
         self.send_form(form['action'], data)
+
+    def get_comments(self, page):
+        r = self.get_page(page + '?v=timeline')
+        soup = BeautifulSoup(r.text, 'html.parser')
+        story_stream = soup.find(class_ = 'storyStream')
+        posts = story_stream.find_all(recursive=False)
+        comments = []
+        for post in posts:
+            temp_first_block = post.find_all(recursive=False)[1]
+            block_with_comments = temp_first_block.find_all(recursive=False)[1]
+            comment_button = block_with_comments.find('a')
+            link = self.MAIN_URL + comment_button['href']
+            r = self.get_page(link)
+            comments_soup = BeautifulSoup(r.text, 'html.parser')
+            story_permalink = comments_soup.find(id='m_story_permalink_view')
+            comments_block = story_permalink.find_all(recursive=False)[1].find('div').find_all(recursive=False)[4]
+            for comment in comments_block.find_all(recursive=False):
+                try:
+                    comment_text = comment.find_all('div')[1].text
+                    print(f"{comment.h3.a.text}: {comment_text}")
+                    comment_link = self.MAIN_URL + comment.find_all('div')[3].find_all('a')[2]['href']
+                    comments.append(
+                        Comment(
+                            href = comment_link,
+                            name = comment.h3.a.text,
+                            text = comment_text,
+                            bot=self
+                        )
+                    )
+                except:
+                    pass
+        return comments
+
+
+    def send_coment(self, url: str, text: str):
+        r = self.get_page(url)
+        soup = BeautifulSoup(r.text)
+        comment_form = soup.find('form')
+        data = self.__get_data_from_form(comment_form)
+        data['comment_text'] = text
+        self.send_form(comment_form['action'], data = data)
+
 
 
 
