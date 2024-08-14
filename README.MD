@@ -53,6 +53,6 @@ comments = bot.get_comments()
 for comment in comments:
    print(comment.data())
     if condition:
-        #to reply to a message
+        #to reply to a comment
        comment.answer('your text here')
 ```
