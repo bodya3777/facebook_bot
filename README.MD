@@ -28,7 +28,7 @@ from bot import Bot
 
 bot = Bot(login='your_email', password='your_password')
 ```
-### Read messages
+### Read and answer messages
 
 ```python
 from app.bot import Bot
@@ -38,5 +38,21 @@ messages = bot.check_messages()
 for message in messages:
    print(message.data())
     if condition:
+        #to reply to a message
        message.answer('your text here')
+```
+
+
+### Read and answer comments
+
+```python
+from app.bot import Bot
+
+bot = Bot(login='your_email', password='your_password')
+comments = bot.get_comments()
+for comment in comments:
+   print(comment.data())
+    if condition:
+        #to reply to a message
+       comment.answer('your text here')
 ```
